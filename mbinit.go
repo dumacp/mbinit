@@ -71,10 +71,12 @@ func main() {
 			select {
 			case <-tick:
 				if err = c.FindId(1).One(&pod); err != nil {
-					log.Fatalln(err)
+					log.Fatalf("lock not found %s", err)
 				}
 				if pod.Name == podName {
-					log.Println(pod.Name)
+					return
+				}
+				if err = c.FindId(2).One(&pod); err == nil {
 					return
 				}
 			}
@@ -83,10 +85,9 @@ func main() {
 		if err = c.Find(bson.M{"_id": 1}).One(&pod); err != nil {
 			log.Fatalln(err)
 		}
-
-		log.Printf("Remove lock 2: %v\n", pod)
 		if pod.Name == podName {
-			if err = c.RemoveId(1); err != nil {
+			log.Printf("Remove lock: %v\n", pod.Name)
+			if err = c.Insert(&Podflag{Id: 2, Name: podName}); err != nil {
 				log.Fatalln(err)
 			}
 		}
