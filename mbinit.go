@@ -21,7 +21,6 @@ import (
 	"log"
 	"flag"
 	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
 )
 
 var url string
@@ -82,7 +81,7 @@ func main() {
 			}
 		}
 	case 3:
-		if err = c.Find(bson.M{"_id": 1}).One(&pod); err != nil {
+		if err = c.FindId(1).One(&pod); err != nil {
 			log.Fatalln(err)
 		}
 		if pod.Name == podName {
