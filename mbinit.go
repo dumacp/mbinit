@@ -25,17 +25,20 @@ import (
 
 var url string
 var podName string
+var buildVersion string
 var step int
 
 func init() {
 	flag.StringVar(&url, "url", "mongodb://127.0.0.1:27017", "URL mongodb")
 	flag.StringVar(&podName, "podName", "localhost", "hostname POD")
+	flag.StringVar(&buildVersion, "buildVersion", "0.0.1", "Docker image build version")
 	flag.IntVar(&step, "step", 1, "step of the chek\n\t 1, lock/verify\n\t 2, wait\n\t 3, unlock\n\t")
 }
 
 type Podflag struct {
 	Id	int `bson:"_id"`
 	Name	string
+	BuildVersion	string
 }
 
 func main() {
@@ -57,13 +60,16 @@ func main() {
 	switch step {
 	case 1:
 		if err = c.FindId(1).One(&pod); err != nil {
-			if err = c.Insert(&Podflag{Id: 1, Name: podName}); err != nil {
+			if err = c.Insert(&Podflag{Id: 1, Name: podName, BuildVersion: buildVersion}); err != nil {
 				log.Fatalln(err)
 			}
 			return
 		}
-		if pod.Name == podName {
-			return
+
+		if pod.Name == podName && pod.BuildVersion == buildVersion {
+			if err = c.FindId(2).One(&pod); err != nil {
+				return
+			}
 		}
 		log.Fatalln("the register already exists")
 
@@ -87,9 +93,9 @@ func main() {
 		if err = c.FindId(1).One(&pod); err != nil {
 			log.Fatalln(err)
 		}
-		if pod.Name == podName {
+		if pod.Name == podName && pod.BuildVersion == buildVersion {
 			log.Printf("Remove lock: %v\n", pod.Name)
-			if err = c.Insert(&Podflag{Id: 2, Name: podName}); err != nil {
+			if _, err = c.UpsertId(2, &Podflag{Id: 2, Name: podName, BuildVersion: buildVersion}); err != nil {
 				log.Fatalln(err)
 			}
 		}
