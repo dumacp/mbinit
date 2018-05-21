@@ -65,8 +65,7 @@ func main() {
 			}
 			return
 		}
-
-		if pod.Name == podName && pod.BuildVersion == buildVersion {
+		if pod.Name == podName {
 			if err = c.FindId(2).One(&pod); err != nil {
 				return
 			}
@@ -93,7 +92,7 @@ func main() {
 		if err = c.FindId(1).One(&pod); err != nil {
 			log.Fatalln(err)
 		}
-		if pod.Name == podName && pod.BuildVersion == buildVersion {
+		if pod.Name == podName {
 			log.Printf("Remove lock: %v\n", pod.Name)
 			if _, err = c.UpsertId(2, &Podflag{Id: 2, Name: podName, BuildVersion: buildVersion}); err != nil {
 				log.Fatalln(err)
