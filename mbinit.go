@@ -62,6 +62,9 @@ func main() {
 			}
 			return
 		}
+		if pod.Name == podName {
+			return
+		}
 		log.Fatalln("the register already exists")
 
 	case 2:
