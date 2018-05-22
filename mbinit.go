@@ -75,16 +75,17 @@ func main() {
 			}
 			return
 		}
-		if pod.Name == podName {
-			if err = c.FindId(2).One(&pod); err != nil {
-				return
-			}
-		}
 		if pod.RunLockVer != runLockVer {
 			if err = c.RemoveId(1); err == nil {
 				if err = c.Insert(podLock); err != nil {
-					return
+					log.Fatalln(err)
 				}
+				return
+			}
+		}
+		if pod.Name == podName {
+			if err = c.FindId(2).One(&pod); err != nil {
+				return
 			}
 		}
 		log.Fatalln("the register already exists")
