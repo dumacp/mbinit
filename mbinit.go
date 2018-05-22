@@ -127,7 +127,14 @@ func main() {
 		if err = c.FindId(3).One(&pod); err != nil {
                         log.Println("Don't flag indexes")
 			pod.TimeStamp = 0
-                }
+                } else {
+			if pod.RunLockVer != runLockVer {
+				pod.TimeStamp = 0
+			}
+		}
+
+
+
 		if ts > (pod.TimeStamp + 60*60*1) {
 			if _, err = c.UpsertId(3, podIndexes); err != nil {
 				log.Fatalln(err)
