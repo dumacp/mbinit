@@ -133,7 +133,9 @@ func main() {
 				log.Fatalln(err)
 			}
 			log.Println("Update flag indexes")
+			return
 		}
+		log.Fatalln("don't update indexes")
 	default:
 		log.Fatalln("Input valid step (1, 2, 3 or 4)")
 	}
