@@ -91,10 +91,11 @@ func main() {
 		log.Fatalln("the register already exists")
 
 	case 2:
-		tick := time.Tick(3 * time.Second)
+		tick := time.NewTicker(3 * time.Second)
+		defer tick.Stop()
 		for {
 			select {
-			case <-tick:
+			case <-tick.C:
 				if err = c.FindId(1).One(&pod); err != nil {
 					log.Fatalf("lock not found %s", err)
 				}
