@@ -85,7 +85,10 @@ func main() {
 		}
 		if pod.Name == podName {
 			if err = c.FindId(2).One(&pod); err != nil {
-				return
+				if err == mgo.ErrNotFound {
+					return
+				}
+				log.Fatalln(err)
 			}
 		}
 		log.Fatalln("the register already exists")
