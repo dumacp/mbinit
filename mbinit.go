@@ -20,6 +20,9 @@ import (
 	"time"
 	"log"
 	"flag"
+	"fmt"
+	"strings"
+	"regexp"
 	"github.com/globalsign/mgo"
 )
 
@@ -40,6 +43,7 @@ func init() {
 type Podflag struct {
 	Id	int `bson:"_id"`
 	Name	string
+	Deploy	string
 	Type	string
 	BuildVersion	string
 	RunLockVer	string
@@ -58,14 +62,29 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	c := session.DB("test").C("initialize")
+	if len(podName) <= 0 {
+		log.Fatalln("hostname length must > 0")
+	}
 
+	re, err := regexp.Compile("-[[:alnum:]]+-[[:alnum:]]+$")
+        if err != nil {
+                log.Fatalln(err)
+        }
+
+	res := re.Split(podName, -1)
+	if len(res) < 1 || len(res[0]) <= 0 {
+		log.Fatalln("hostname is not a regexp template")
+	}
+
+	deployName := strings.Replace(res[0], "-", "_", -1)
+
+	c := session.DB("test").C(fmt.Sprintf("initialize_%s", deployName))
 
 	ts := time.Now().Unix()
 	pod := &Podflag{}
-	podLock := &Podflag{Id: 1, Name: podName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "lock", TimeStamp: ts}
-	podUnLock := &Podflag{Id: 2, Name: podName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "unlock", TimeStamp: ts}
-	podIndexes := &Podflag{Id: 3, Name: podName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "indexes", TimeStamp: ts}
+	podLock := &Podflag{Id: 1, Name: podName, Deploy: deployName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "lock", TimeStamp: ts}
+	podUnLock := &Podflag{Id: 2, Name: podName, Deploy: deployName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "unlock", TimeStamp: ts}
+	podIndexes := &Podflag{Id: 3, Name: podName, Deploy: deployName, BuildVersion: buildVersion, RunLockVer: runLockVer, Type: "indexes", TimeStamp: ts}
 
 	switch step {
 	case 1:
