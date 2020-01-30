@@ -15,15 +15,14 @@ Usage of mbinit:
 */
 package main
 
-
 import (
-	"time"
-	"log"
 	"flag"
 	"fmt"
-	"strings"
-	"regexp"
 	"github.com/globalsign/mgo"
+	"log"
+	"regexp"
+	"strings"
+	"time"
 )
 
 var url string
@@ -41,13 +40,13 @@ func init() {
 }
 
 type Podflag struct {
-	Id	int `bson:"_id"`
-	Name	string
-	Deploy	string
-	Type	string
-	BuildVersion	string
-	RunLockVer	string
-	TimeStamp	int64
+	Id           int `bson:"_id"`
+	Name         string
+	Deploy       string
+	Type         string
+	BuildVersion string
+	RunLockVer   string
+	TimeStamp    int64
 }
 
 func main() {
@@ -67,9 +66,9 @@ func main() {
 	}
 
 	re, err := regexp.Compile("-[[:alnum:]]+-[[:alnum:]]+$")
-        if err != nil {
-                log.Fatalln(err)
-        }
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	res := re.Split(podName, -1)
 	if len(res) < 1 || len(res[0]) <= 0 {
@@ -109,6 +108,9 @@ func main() {
 				}
 				log.Fatalln(err)
 			}
+			if pod.RunLockVer != runLockVer {
+				return
+			}
 		}
 		log.Fatalln("the register already exists")
 
@@ -143,21 +145,19 @@ func main() {
 		}
 	case 4:
 		if err = c.FindId(1).One(&pod); err != nil {
-                        log.Fatalln(err)
-                }
+			log.Fatalln(err)
+		}
 		if err = c.FindId(2).One(&pod); err != nil {
-                        log.Fatalln(err)
+			log.Fatalln(err)
 		}
 		if err = c.FindId(3).One(&pod); err != nil {
-                        log.Println("Don't flag indexes")
+			log.Println("Don't flag indexes")
 			pod.TimeStamp = 0
-                } else {
+		} else {
 			if pod.RunLockVer != runLockVer {
 				pod.TimeStamp = 0
 			}
 		}
-
-
 
 		if ts > (pod.TimeStamp + 60*60*1) {
 			if _, err = c.UpsertId(3, podIndexes); err != nil {
@@ -171,9 +171,3 @@ func main() {
 		log.Fatalln("Input valid step (1, 2, 3 or 4)")
 	}
 }
-
-
-
-
-
-
