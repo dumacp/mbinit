@@ -18,11 +18,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/globalsign/mgo"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/globalsign/mgo"
 )
 
 var url string
@@ -65,7 +66,7 @@ func main() {
 		log.Fatalln("hostname length must > 0")
 	}
 
-	re, err := regexp.Compile("-[[:alnum:]]+-[[:alnum:]]+$")
+	re, err := regexp.Compile("-[[:alnum:]]+-[[:alnum:]]{2,}$")
 	if err != nil {
 		log.Fatalln(err)
 	}
